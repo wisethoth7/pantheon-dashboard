@@ -307,7 +307,7 @@
       <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
         <div class="stat ot"><div class="stat-label">RESTAURANTS</div><div class="stat-value" id="ot-total">…</div><div class="stat-sub">total</div></div>
         <div class="stat ot"><div class="stat-label">AGENTS LIVE</div><div class="stat-value" id="ot-live">…</div><div class="stat-sub">active now</div></div>
-        <div class="stat ot"><div class="stat-label">MRR</div><div class="stat-value" id="ot-mrr">…</div><div class="stat-sub">@$299/mo</div></div>
+        <div class="stat ot"><div class="stat-label">MRR</div><div class="stat-value" id="ot-mrr">…</div><div class="stat-sub" id="ot-mrr-sub">loading</div></div>
         <div class="stat ot"><div class="stat-label">UNPROVISIONED</div><div class="stat-value" id="ot-unprov">…</div><div class="stat-sub">signups pending</div></div>
       </div>
       <div class="dash-card">
@@ -430,9 +430,23 @@
             <tr><td class="asset">ETH</td><td>$1,580–1,620</td><td>$1,480</td><td>$1,850</td><td>$2,050</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
             <tr><td class="asset">ADA</td><td>$0.155–0.165</td><td>$0.142</td><td>$0.20</td><td>$0.24</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
             <tr><td class="asset">SUI</td><td>$0.68–0.72</td><td>$0.62</td><td>$0.88</td><td>$1.05</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">APT</td><td>$3.50–3.80</td><td>$3.15</td><td>$4.60</td><td>$5.80</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
             <tr><td class="asset">LINK</td><td>$7.20–7.60</td><td>$6.60</td><td>$9.50</td><td>$11.50</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
-            <tr><td class="asset">XRP</td><td>$1.08–1.12</td><td>$1.00</td><td>$1.30</td><td>$1.55</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">DOT</td><td>$2.80–3.00</td><td>$2.55</td><td>$3.65</td><td>$4.50</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">LTC</td><td>$62–66</td><td>$57</td><td>$78</td><td>$94</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">KAS</td><td>$0.055–0.062</td><td>$0.048</td><td>$0.082</td><td>$0.100</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">XLM</td><td>$0.095–0.105</td><td>$0.086</td><td>$0.130</td><td>$0.158</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">HBAR</td><td>$0.047–0.053</td><td>$0.041</td><td>$0.068</td><td>$0.086</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">ALGO</td><td>$0.110–0.120</td><td>$0.098</td><td>$0.148</td><td>$0.178</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">XTZ</td><td>$0.58–0.63</td><td>$0.52</td><td>$0.80</td><td>$0.96</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">FLR</td><td>$0.0120–0.0138</td><td>$0.0104</td><td>$0.0178</td><td>$0.0225</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">LYX</td><td>$1.20–1.38</td><td>$1.05</td><td>$1.75</td><td>$2.20</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
             <tr><td class="asset">DOGE</td><td>$0.075–0.080</td><td>$0.068</td><td>$0.095</td><td>$0.11</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">SHIB</td><td>$0.0000088–0.0000096</td><td>$0.0000078</td><td>$0.000012</td><td>$0.000015</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">BONK</td><td>$0.0000158–0.0000175</td><td>$0.0000140</td><td>$0.0000222</td><td>$0.0000280</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">TURBO</td><td>$0.0000108–0.0000122</td><td>$0.0000094</td><td>$0.0000155</td><td>$0.0000195</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">PRO</td><td>$0.00022–0.00026</td><td>$0.00018</td><td>$0.00034</td><td>$0.00042</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">XRP</td><td>$1.08–1.12</td><td>$1.00</td><td>$1.30</td><td>$1.55</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
             <tr><td class="asset">GOLD</td><td>Dips above $4,200</td><td>—</td><td>$5,400</td><td>$6,300</td><td><span class="zone-badge zone-watch">LT Bull</span></td></tr>
             <tr><td class="asset">SILVER</td><td>~$71 zone</td><td>—</td><td>—</td><td>—</td><td><span class="zone-badge zone-watch">Iran deal?</span></td></tr>
           </tbody>
@@ -495,7 +509,7 @@ function showPanel(id){
 // ── LOAD ALL DATA ─────────────────────────────────────────────────────────────
 async function loadAll(){
   document.getElementById('last-updated').textContent = 'Loading…';
-  await Promise.all([loadOT(), loadEvently(), loadDunning(), loadLinguaCloud()]);
+  await Promise.all([loadOT(), loadEvently(), loadDunning(), loadLinguaCloud(), loadProposalCraft()]);
   renderOverview();
   document.getElementById('last-updated').textContent = 'Updated '+new Date().toLocaleTimeString();
 }
@@ -513,7 +527,7 @@ async function loadOT(){
     otData.signups = s.data||[];
 
     const live = otData.restaurants.filter(r=>r.agent_active).length;
-    const mrr = live * 299;
+    const mrr = otData.restaurants.filter(r=>r.agent_active).reduce((sum,r)=>sum+(Number(r.plan_price)||299),0);
     const unprov = otData.signups.filter(s=>!s.provisioned).length;
 
     el('s-ot', otData.restaurants.length);
@@ -523,6 +537,7 @@ async function loadOT(){
     el('ot-total', otData.restaurants.length);
     el('ot-live', live);
     el('ot-mrr', '$'+mrr.toLocaleString());
+    el('ot-mrr-sub', live ? (mrr/live|0===299 ? '@$299/mo' : 'avg $'+(mrr/live|0)+'/mo') : 'no active agents');
     el('ot-unprov', unprov);
     el('ot-all-count', otData.restaurants.length+' total');
 
@@ -639,6 +654,15 @@ async function loadLinguaCloud(){
       ? list.map(s=>`<div class="activity-item"><div class="activity-dot" style="background:var(--lc)"></div><div class="activity-text"><strong>${esc(s.email)}</strong></div><div class="activity-time">${s.created_at?timeAgo(s.created_at):''}</div></div>`).join('')
       : '<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px">No signups yet — deploy linguacloud.html first</div>';
   }catch(e){ console.error('LC load:', e.message); }
+}
+
+// ── PROPOSALCRAFT ─────────────────────────────────────────────────────────────
+async function loadProposalCraft(){
+  try{
+    const { data } = await sb.from('proposalcraft_buyers').select('id,created_at').order('created_at',{ascending:false}).catch(()=>({data:[]}));
+    const sales = (data||[]).length;
+    el('pc-sales', sales || '0');
+  }catch(e){ el('pc-sales','0'); }
 }
 
 // ── OVERVIEW RENDER ───────────────────────────────────────────────────────────
