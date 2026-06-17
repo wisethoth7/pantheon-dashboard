@@ -3,471 +3,683 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Horus Pantheon — Master Dashboard</title>
+<title>Horus Pantheon — Command Dashboard</title>
+<meta name="robots" content="noindex, nofollow">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-:root {
-  --bg:#08070F;--surface:#0F0C18;--card:#16131F;--card2:#1C1829;
-  --gold:#C9A227;--gold-dim:rgba(201,162,39,.1);--gold-border:rgba(201,162,39,.22);
-  --purple:#8B5CF6;--green:#22C55E;--red:#F87171;--amber:#FBBF24;--blue:#60A5FA;
-  --text:#F0ECFF;--text2:#5E5478;--border:rgba(255,255,255,.06);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;min-height:100vh}
+  :root {
+    --bg: #040608;
+    --surface: #07090F;
+    --card: #0C1018;
+    --card2: #111620;
+    --gold: #C9A84C;
+    --gold-dim: rgba(201,168,76,0.08);
+    --gold-border: rgba(201,168,76,0.2);
+    --cyan: #00C6CF;
+    --cyan-dim: rgba(0,198,207,0.06);
+    --green: #34D399;
+    --green-dim: rgba(52,211,153,0.08);
+    --green-border: rgba(52,211,153,0.2);
+    --red: #F87171;
+    --red-dim: rgba(248,113,113,0.08);
+    --amber: #FBBF24;
+    --ot: #FF6B35; --ev: #16a34a; --da: #3B82F6; --lc: #FFD93D; --pc: #8B5CF6;
+    --text: #E8F0FF;
+    --text2: #3A4A6A;
+    --border: rgba(255,255,255,0.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;line-height:1.5;min-height:100vh}
 
-/* PIN GATE */
-#pinGate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
-.pin-box{background:var(--card);border:1px solid var(--gold-border);border-radius:20px;padding:44px 40px;text-align:center;max-width:360px;width:calc(100vw - 40px)}
-.pin-logo{font-size:28px;font-weight:900;margin-bottom:6px;letter-spacing:-1px}
-.pin-logo span{color:var(--gold)}
-.pin-sub{font-size:13px;color:var(--text2);margin-bottom:28px}
-.pin-input{width:100%;padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:20px;text-align:center;letter-spacing:4px;font-family:inherit;outline:none;transition:border-color .2s;margin-bottom:12px}
-.pin-input:focus{border-color:var(--gold-border)}
-.pin-btn{width:100%;padding:13px;background:var(--gold);color:#1a0f00;font-size:15px;font-weight:800;border:none;border-radius:10px;cursor:pointer;transition:opacity .15s}
-.pin-btn:hover{opacity:.85}
-.pin-error{color:var(--red);font-size:12px;margin-top:8px;min-height:16px}
+  /* AUTH */
+  .auth{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:24px}
+  .auth-box{background:var(--card);border:1px solid var(--gold-border);border-radius:16px;padding:36px;max-width:340px;width:100%;text-align:center}
+  .auth-title{font-size:14px;font-weight:900;letter-spacing:3px;color:var(--gold);margin-bottom:6px}
+  .auth-sub{font-size:24px;font-weight:900;letter-spacing:-1px;margin-bottom:28px}
+  .auth-input{width:100%;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;transition:border-color .2s;text-align:center;letter-spacing:4px}
+  .auth-input:focus{border-color:var(--gold-border)}
+  .auth-btn{width:100%;padding:12px;background:var(--gold);color:#040608;font-size:14px;font-weight:900;border-radius:9px;border:none;cursor:pointer;transition:opacity .2s}
+  .auth-btn:hover{opacity:.88}
+  .auth-err{font-size:12px;color:var(--red);margin-top:8px;display:none}
 
-/* HEADER */
-header{background:var(--surface);border-bottom:1px solid var(--gold-border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.hdr-logo{font-size:20px;font-weight:900;letter-spacing:-.5px}
-.hdr-logo span{color:var(--gold)}
-.hdr-right{display:flex;align-items:center;gap:14px}
-.hdr-date{font-size:12px;color:var(--text2)}
-.hdr-refresh{background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:opacity .15s}
-.hdr-refresh:hover{opacity:.8}
-.last-updated{font-size:11px;color:var(--text2)}
+  /* LAYOUT */
+  .layout{display:flex;min-height:100vh}
 
-/* GRID */
-.panel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:20px}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .2s}
-.panel:hover{border-color:var(--gold-border)}
-.panel-full{grid-column:1 / -1}
-.panel-half{grid-column:span 1}
+  /* SIDEBAR */
+  .sidebar{width:200px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:0 0 24px;position:fixed;top:0;left:0;bottom:0;z-index:50;display:flex;flex-direction:column}
+  .sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid var(--border);margin-bottom:8px}
+  .logo-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--gold);margin-bottom:3px}
+  .logo-name{font-size:15px;font-weight:900;letter-spacing:-.3px;color:var(--text)}
+  .nav-link{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:1px 8px;border-radius:7px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;text-decoration:none}
+  .nav-link:hover{background:rgba(255,255,255,.03);color:var(--text)}
+  .nav-link.active{background:var(--gold-dim);color:var(--gold);font-weight:700}
+  .nav-icon{font-size:14px;flex-shrink:0}
+  .nav-section-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text2);padding:12px 18px 4px;text-transform:uppercase}
 
-.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.panel-title{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--text2)}
-.panel-status{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700}
-.dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-.dot-waitlist{width:7px;height:7px;border-radius:50%;background:var(--amber)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.panel-link{font-size:11px;color:var(--text2);text-decoration:none;transition:color .2s}
-.panel-link:hover{color:var(--gold)}
+  /* MAIN */
+  .main{margin-left:200px;flex:1;overflow:hidden}
+  .topbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(4,6,8,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:40}
+  .topbar-title{font-size:15px;font-weight:800;letter-spacing:-.3px}
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .topbar-time{font-size:11px;color:var(--text2)}
+  .refresh-btn{padding:5px 12px;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s}
+  .refresh-btn:hover{border-color:var(--gold-border);color:var(--gold)}
 
-/* STATS */
-.stat-row{display:flex;gap:12px;flex-wrap:wrap}
-.stat-box{flex:1;min-width:80px;background:var(--card2);border-radius:10px;padding:12px 14px}
-.stat-val{font-size:26px;font-weight:900;letter-spacing:-1px}
-.stat-val.green{color:var(--green)}
-.stat-val.gold{color:var(--gold)}
-.stat-val.purple{color:var(--purple)}
-.stat-val.amber{color:var(--amber)}
-.stat-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+  .content{padding:20px 24px}
+  .panel{display:none}.panel.active{display:block}
 
-/* TRADING WATCHLIST */
-.crypto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
-.crypto-card{background:var(--card2);border-radius:12px;padding:14px 16px;border:1px solid var(--border)}
-.crypto-name{font-size:11px;font-weight:800;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
-.crypto-symbol{font-size:11px;color:var(--text2)}
-.crypto-price{font-size:22px;font-weight:900;letter-spacing:-1px;color:var(--text)}
-.crypto-change{font-size:12px;font-weight:700;margin-top:4px}
-.crypto-change.up{color:var(--green)}
-.crypto-change.down{color:var(--red)}
+  /* STAT CARDS */
+  .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden}
+  .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+  .stat.ot::before{background:var(--ot)}.stat.ev::before{background:var(--ev)}
+  .stat.da::before{background:var(--da)}.stat.lc::before{background:var(--lc)}
+  .stat.total::before{background:var(--gold)}
+  .stat-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:6px;text-transform:uppercase}
+  .stat-value{font-size:24px;font-weight:900;letter-spacing:-1.5px}
+  .stat.ot .stat-value{color:var(--ot)}.stat.ev .stat-value{color:var(--ev)}
+  .stat.da .stat-value{color:var(--da)}.stat.lc .stat-value{color:var(--lc)}
+  .stat.total .stat-value{color:var(--gold)}
+  .stat-sub{font-size:10px;color:var(--text2);margin-top:3px}
 
-/* ACTIVITY LIST */
-.activity-list{display:flex;flex-direction:column;gap:8px}
-.activity-row{display:flex;align-items:center;gap:10px;font-size:12px;padding:8px 10px;background:var(--card2);border-radius:8px}
-.activity-icon{font-size:16px;flex-shrink:0}
-.activity-text{flex:1;color:var(--text)}
-.activity-time{color:var(--text2);font-size:11px;white-space:nowrap}
+  /* GRID CARDS */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+  .dash-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .dash-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .dash-title{font-size:11px;font-weight:700;color:var(--text);letter-spacing:.3px}
+  .dash-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
 
-/* LOADING */
-.loading{color:var(--text2);font-size:13px;font-style:italic}
+  /* PRODUCT ROWS */
+  .product-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.03)}
+  .product-row:last-child{border-bottom:none}
+  .prod-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .prod-name{font-size:12px;font-weight:700;color:var(--text);flex:1}
+  .prod-val{font-size:12px;font-weight:700}
+  .prod-sub{font-size:10px;color:var(--text2)}
 
-@media(max-width:900px){.panel-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.panel-grid{grid-template-columns:1fr}.panel-full,.panel-half{grid-column:auto}}
+  /* ACTIVITY */
+  .activity-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.03)}
+  .activity-item:last-child{border-bottom:none}
+  .activity-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+  .activity-text{flex:1;font-size:12px;color:var(--text2);line-height:1.5}
+  .activity-text strong{color:var(--text)}
+  .activity-time{font-size:10px;color:var(--text2);flex-shrink:0}
+
+  /* WATCHLIST TABLE */
+  .watch-table{width:100%;border-collapse:collapse}
+  .watch-table th{text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text2);border-bottom:1px solid var(--border);text-transform:uppercase}
+  .watch-table td{padding:8px 12px;font-size:12px;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.02)}
+  .watch-table tr:last-child td{border-bottom:none}
+  .watch-table tr:hover td{background:rgba(255,255,255,.01)}
+  .watch-table td.asset{font-weight:700;color:var(--text)}
+  .watch-table td.price{font-weight:700;color:var(--text)}
+  .up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--text2)}
+  .zone-badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:9px;font-weight:700}
+  .zone-watch{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)}
+  .zone-protect{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+
+  /* MINI CHART BAR */
+  .bar-wrap{height:4px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;margin-top:3px;width:60px}
+  .bar-fill{height:100%;border-radius:99px}
+
+  /* SPINNER */
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(201,168,76,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+
+  /* RESPONSIVE */
+  @media(max-width:1100px){
+    .stats-row{grid-template-columns:repeat(3,1fr)}
+    .grid-3{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:768px){
+    .sidebar{display:none}.main{margin-left:0}
+    .stats-row{grid-template-columns:1fr 1fr}
+    .grid-2,.grid-3{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
 
-<!-- PIN GATE -->
-<div id="pinGate">
-  <div class="pin-box">
-    <div class="pin-logo">Horus <span>Pantheon</span></div>
-    <div class="pin-sub">Commander access only</div>
-    <input type="password" class="pin-input" id="pinInput" placeholder="••••••••" maxlength="32" autocomplete="off"
-      onkeydown="if(event.key==='Enter')checkPin()">
-    <button class="pin-btn" onclick="checkPin()">Enter Dashboard</button>
-    <div class="pin-error" id="pinError"></div>
+<!-- AUTH -->
+<div class="auth" id="auth">
+  <div class="auth-box">
+    <div class="logo-eyebrow">HORUS PANTHEON</div>
+    <div class="auth-sub">Command Dashboard</div>
+    <input class="auth-input" type="password" id="auth-pin" placeholder="PIN" onkeydown="if(event.key==='Enter')checkPin()">
+    <button class="auth-btn" onclick="checkPin()">Enter</button>
+    <div class="auth-err" id="auth-err">Access denied.</div>
   </div>
 </div>
 
-<!-- HEADER -->
-<header>
-  <div class="hdr-logo">Horus <span>Pantheon</span> — Master Dashboard</div>
-  <div class="hdr-right">
-    <span class="hdr-date" id="hdrDate"></span>
-    <span class="last-updated" id="lastUpdated"></span>
-    <button class="hdr-refresh" onclick="loadAll()">↻ REFRESH</button>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-eyebrow">HORUS PANTHEON</div>
+    <div class="logo-name">Command</div>
   </div>
-</header>
+  <div class="nav-section-label">Overview</div>
+  <a class="nav-link active" onclick="showPanel('overview')" href="#"><span class="nav-icon">⚡</span> Command Center</a>
+  <div class="nav-section-label">Products</div>
+  <a class="nav-link" onclick="showPanel('ordertaker')" href="#"><span class="nav-icon" style="color:var(--ot)">🍽️</span> OrderTaker</a>
+  <a class="nav-link" onclick="showPanel('evently')" href="#"><span class="nav-icon" style="color:var(--ev)">📅</span> Evently</a>
+  <a class="nav-link" onclick="showPanel('dunning')" href="#"><span class="nav-icon" style="color:var(--da)">💳</span> Dunning</a>
+  <a class="nav-link" onclick="showPanel('linguacloud')" href="#"><span class="nav-icon" style="color:var(--lc)">🌍</span> LinguaCloud</a>
+  <a class="nav-link" onclick="showPanel('proposalcraft')" href="#"><span class="nav-icon" style="color:var(--pc)">📝</span> ProposalCraft</a>
+  <a class="nav-link" onclick="showPanel('replydraft')" href="#"><span class="nav-icon" style="color:#8B5CF6">✍️</span> ReplyDraft</a>
+  <div class="nav-section-label">Trading</div>
+  <a class="nav-link" onclick="showPanel('trading')" href="#"><span class="nav-icon" style="color:var(--gold)">📊</span> Watchlist</a>
+  <div style="margin-top:auto;padding:12px 16px;border-top:1px solid var(--border)">
+    <div style="font-size:9px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:4px">SYSTEM</div>
+    <div style="font-size:11px;color:var(--text2)" id="last-updated">Not loaded</div>
+  </div>
+</aside>
 
-<!-- PANEL GRID -->
-<div class="panel-grid">
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Command Center</span>
+    <div class="topbar-right">
+      <span class="topbar-time" id="topbar-time"></span>
+      <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    </div>
+  </div>
 
-  <!-- OrderTaker -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">🍕 OrderTaker</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-live"></div><span style="color:var(--green)">LIVE</span></div>
-        <a href="../ordertaker/dashboard.html" class="panel-link" target="_blank">Open ↗</a>
+  <div class="content">
+
+    <!-- ═══ COMMAND CENTER ═══ -->
+    <div class="panel active" id="panel-overview">
+
+      <!-- MRR Row -->
+      <div class="stats-row">
+        <div class="stat total">
+          <div class="stat-label">TOTAL MRR</div>
+          <div class="stat-value" id="s-mrr">…</div>
+          <div class="stat-sub" id="s-mrr-sub">loading</div>
+        </div>
+        <div class="stat ot">
+          <div class="stat-label">ORDERTAKER</div>
+          <div class="stat-value" id="s-ot">…</div>
+          <div class="stat-sub" id="s-ot-sub">restaurants</div>
+        </div>
+        <div class="stat ev">
+          <div class="stat-label">EVENTLY</div>
+          <div class="stat-value" id="s-ev">…</div>
+          <div class="stat-sub" id="s-ev-sub">events live</div>
+        </div>
+        <div class="stat da">
+          <div class="stat-label">DUNNING</div>
+          <div class="stat-value" id="s-da">…</div>
+          <div class="stat-sub" id="s-da-sub">customers</div>
+        </div>
+        <div class="stat lc">
+          <div class="stat-label">LINGUACLOUD</div>
+          <div class="stat-value" id="s-lc">…</div>
+          <div class="stat-sub">waitlist</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- Signups pipeline -->
+        <div class="dash-card">
+          <div class="dash-header">
+            <span class="dash-title">SIGNUP PIPELINE</span>
+            <span class="dash-badge" id="pipeline-badge">…</span>
+          </div>
+          <div id="pipeline-content" style="padding:8px 0">
+            <div style="padding:20px;text-align:center"><span class="spin"></span></div>
+          </div>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="dash-card">
+          <div class="dash-header">
+            <span class="dash-title">RECENT ACTIVITY</span>
+          </div>
+          <div id="activity-content">
+            <div style="padding:20px;text-align:center"><span class="spin"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+
+        <!-- OT restaurants -->
+        <div class="dash-card">
+          <div class="dash-header"><span class="dash-title">🍽️ RESTAURANTS</span></div>
+          <div id="ot-restaurants-mini">
+            <div style="padding:20px;text-align:center"><span class="spin"></span></div>
+          </div>
+        </div>
+
+        <!-- Trading snapshot -->
+        <div class="dash-card">
+          <div class="dash-header"><span class="dash-title">📊 TRADING — STANCE</span></div>
+          <div style="padding:14px 16px">
+            <div style="font-size:13px;font-weight:800;color:var(--red);margin-bottom:8px">⛔ CAPITAL PROTECTION</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.7">
+              No active positions.<br>
+              5-layer confirmation required.<br>
+              BTC target to change stance: <strong style="color:var(--text)">$68,000+ close</strong>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <span style="font-size:10px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);padding:2px 8px;border-radius:20px;font-weight:700">GOLD ✓ WATCH</span>
+              <span style="font-size:10px;background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);padding:2px 8px;border-radius:20px;font-weight:700">BTC BELOW ENTRY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending tasks -->
+        <div class="dash-card">
+          <div class="dash-header"><span class="dash-title">⚡ PENDING — HORUS</span></div>
+          <div style="padding:8px 0">
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--red)"></div>
+              <div class="activity-text">Run <strong>SQL migrations</strong> in Supabase</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--red)"></div>
+              <div class="activity-text">Push all files to <strong>GitHub repos</strong></div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber)"></div>
+              <div class="activity-text">Set Gumroad <strong>Ping URL</strong> for Evently</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber)"></div>
+              <div class="activity-text">Create <strong>Stripe product</strong> $299/mo</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber)"></div>
+              <div class="activity-text">Post <strong>ProposalCraft</strong> social content</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="stat-row" id="ot-stats">
-      <div class="stat-box"><div class="stat-val green" id="ot-orders-today">—</div><div class="stat-lbl">Orders Today</div></div>
-      <div class="stat-box"><div class="stat-val gold" id="ot-revenue-today">—</div><div class="stat-lbl">Revenue Today</div></div>
-      <div class="stat-box"><div class="stat-val amber" id="ot-leads">—</div><div class="stat-lbl">Signups</div></div>
-    </div>
-    <div style="margin-top:12px;font-size:11px;color:var(--text2)" id="ot-latest-order"></div>
-  </div>
 
-  <!-- Evently -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">📅 Evently</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-live"></div><span style="color:var(--green)">LIVE</span></div>
-        <a href="../evently/index.html" class="panel-link" target="_blank">Open ↗</a>
+    <!-- ═══ ORDERTAKER ═══ -->
+    <div class="panel" id="panel-ordertaker">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat ot"><div class="stat-label">RESTAURANTS</div><div class="stat-value" id="ot-total">…</div><div class="stat-sub">total</div></div>
+        <div class="stat ot"><div class="stat-label">AGENTS LIVE</div><div class="stat-value" id="ot-live">…</div><div class="stat-sub">active now</div></div>
+        <div class="stat ot"><div class="stat-label">MRR</div><div class="stat-value" id="ot-mrr">…</div><div class="stat-sub">@$299/mo</div></div>
+        <div class="stat ot"><div class="stat-label">UNPROVISIONED</div><div class="stat-value" id="ot-unprov">…</div><div class="stat-sub">signups pending</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-header"><span class="dash-title">ALL RESTAURANTS</span><span class="dash-badge" id="ot-all-count">…</span></div>
+        <table class="watch-table"><thead><tr><th>Name</th><th>Email</th><th>Agent</th><th>Minutes</th><th>Plan</th></tr></thead>
+        <tbody id="ot-table-body"><tr><td colspan="5" style="text-align:center;padding:24px"><span class="spin"></span></td></tr></tbody></table>
       </div>
     </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val purple" id="evently-events">—</div><div class="stat-lbl">Events</div></div>
-      <div class="stat-box"><div class="stat-val green" id="evently-rsvps">—</div><div class="stat-lbl">RSVPs</div></div>
-      <div class="stat-box"><div class="stat-val gold" id="evently-views">—</div><div class="stat-lbl">Views</div></div>
-    </div>
-  </div>
 
-  <!-- LinguaCloud -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">🌐 LinguaCloud</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-waitlist"></div><span style="color:var(--amber)">WAITLIST</span></div>
-        <a href="../linguacloud/index.html" class="panel-link" target="_blank">Open ↗</a>
+    <!-- ═══ EVENTLY ═══ -->
+    <div class="panel" id="panel-evently">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat ev"><div class="stat-label">EVENTS LIVE</div><div class="stat-value" id="ev-events">…</div></div>
+        <div class="stat ev"><div class="stat-label">ORGANISERS</div><div class="stat-value" id="ev-orgs">…</div></div>
+        <div class="stat ev"><div class="stat-label">PAID TIERS</div><div class="stat-value" id="ev-paid">…</div></div>
+        <div class="stat ev"><div class="stat-label">RSVPs</div><div class="stat-value" id="ev-rsvps">…</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="dash-card">
+          <div class="dash-header"><span class="dash-title">TIER BREAKDOWN</span></div>
+          <div id="ev-tiers-content" style="padding:8px 0">
+            <div style="padding:20px;text-align:center"><span class="spin"></span></div>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-header"><span class="dash-title">RECENT EVENTS</span></div>
+          <div id="ev-recent-content"><div style="padding:20px;text-align:center"><span class="spin"></span></div></div>
+        </div>
       </div>
     </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val gold" id="lc-signups">—</div><div class="stat-lbl">Waitlist</div></div>
-      <div class="stat-box"><div class="stat-val amber" id="lc-today">—</div><div class="stat-lbl">Joined Today</div></div>
-    </div>
-  </div>
 
-  <!-- Dunning Assistant -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">💰 Dunning Assistant</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-live"></div><span style="color:var(--green)">ACTIVE</span></div>
+    <!-- ═══ DUNNING ═══ -->
+    <div class="panel" id="panel-dunning">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat da"><div class="stat-label">CUSTOMERS</div><div class="stat-value" id="da-customers">…</div></div>
+        <div class="stat da"><div class="stat-label">OVERDUE</div><div class="stat-value" id="da-overdue">…</div></div>
+        <div class="stat da"><div class="stat-label">RECOVERED</div><div class="stat-value" id="da-recovered">…</div></div>
+        <div class="stat da"><div class="stat-label">PENDING SENDS</div><div class="stat-value" id="da-pending">…</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-header"><span class="dash-title">OVERDUE INVOICES</span></div>
+        <table class="watch-table"><thead><tr><th>Customer</th><th>Amount</th><th>Days Late</th><th>Step</th><th>Status</th></tr></thead>
+        <tbody id="da-table-body"><tr><td colspan="5" style="text-align:center;padding:24px"><span class="spin"></span></td></tr></tbody></table>
       </div>
     </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val purple" id="dun-tenants">—</div><div class="stat-lbl">Tenants</div></div>
-      <div class="stat-box"><div class="stat-val amber" id="dun-invoices">—</div><div class="stat-lbl">Invoices</div></div>
-      <div class="stat-box"><div class="stat-val red" id="dun-overdue">—</div><div class="stat-lbl">Overdue</div></div>
-    </div>
-  </div>
 
-  <!-- ReplyDraft -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">✍️ ReplyDraft</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-live"></div><span style="color:var(--green)">LIVE</span></div>
-        <a href="../replydraft/index.html" class="panel-link" target="_blank">Open ↗</a>
+    <!-- ═══ LINGUACLOUD ═══ -->
+    <div class="panel" id="panel-linguacloud">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat lc"><div class="stat-label">WAITLIST</div><div class="stat-value" id="lc-waitlist">…</div></div>
+        <div class="stat lc"><div class="stat-label">STATUS</div><div class="stat-value" style="font-size:14px;letter-spacing:0">Pre-Launch</div></div>
+        <div class="stat lc"><div class="stat-label">COPPA REVIEW</div><div class="stat-value" style="font-size:14px;letter-spacing:0;color:var(--amber)">Pending</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-header"><span class="dash-title">WAITLIST SIGNUPS</span></div>
+        <div id="lc-signups-content"><div style="padding:20px;text-align:center"><span class="spin"></span></div></div>
       </div>
     </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val purple" id="rd-uses">—</div><div class="stat-lbl">Uses This Month</div></div>
-      <div class="stat-box"><div class="stat-val gold">$9</div><div class="stat-lbl">Pro Price</div></div>
-    </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text2)">Usage tracked in localStorage per visitor</div>
-  </div>
 
-  <!-- ProposalCraft -->
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-title">📝 ProposalCraft</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="panel-status"><div class="dot-live"></div><span style="color:var(--green)">LIVE</span></div>
+    <!-- ═══ PROPOSALCRAFT ═══ -->
+    <div class="panel" id="panel-proposalcraft">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat" style="--color:var(--pc)"><div class="stat-label">GUMROAD SALES</div><div class="stat-value" style="color:var(--pc)" id="pc-sales">…</div></div>
+        <div class="stat" style="--color:var(--pc)"><div class="stat-label">PRICE</div><div class="stat-value" style="color:var(--pc)">$29</div><div class="stat-sub">one-time</div></div>
+        <div class="stat" style="--color:var(--pc)"><div class="stat-label">SOCIAL CONTENT</div><div class="stat-value" style="font-size:14px;letter-spacing:0;color:var(--red)">Not Posted</div></div>
+      </div>
+      <div class="dash-card" style="padding:24px">
+        <div style="font-size:13px;color:var(--text2);line-height:1.8">
+          ProposalCraft is live on Gumroad at $29. Social content (X thread, LinkedIn, Reddit, Arabic) is written and waiting in Google Drive.<br><br>
+          <strong style="color:var(--text)">Action required:</strong> Post the social content. Zero sales until it's promoted.<br><br>
+          <a href="https://thothwisdom.gumroad.com/l/vquei" target="_blank" style="color:var(--pc);text-decoration:none;font-weight:700">→ View on Gumroad</a>
+        </div>
       </div>
     </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-val purple" id="pc-proposals">—</div><div class="stat-lbl">Proposals</div></div>
-      <div class="stat-box"><div class="stat-val green" id="pc-buyers">—</div><div class="stat-lbl">Buyers</div></div>
-    </div>
-  </div>
 
-  <!-- TRADING WATCHLIST -->
-  <div class="panel panel-full">
-    <div class="panel-header">
-      <span class="panel-title">📈 Trading Watchlist</span>
-      <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:11px;color:var(--text2)" id="crypto-updated"></span>
-        <button onclick="loadCrypto()" style="background:var(--card2);border:1px solid var(--border);color:var(--text2);border-radius:7px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:700">↻</button>
+    <!-- ═══ REPLYDRAFT ═══ -->
+    <div class="panel" id="panel-replydraft">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat" style="--color:#8B5CF6"><div class="stat-label">PRICE</div><div class="stat-value" style="color:#8B5CF6">$9</div><div class="stat-sub">per month</div></div>
+        <div class="stat" style="--color:#8B5CF6"><div class="stat-label">FREE LIMIT</div><div class="stat-value" style="color:#8B5CF6">5</div><div class="stat-sub">replies/month</div></div>
+        <div class="stat" style="--color:#8B5CF6"><div class="stat-label">STATUS</div><div class="stat-value" style="font-size:14px;letter-spacing:0;color:var(--green)">LIVE</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="dash-card" style="padding:20px">
+          <div class="dash-header" style="margin:-20px -20px 16px;padding:12px 16px"><span class="dash-title">PRODUCT</span></div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8">
+            AI-powered reply generator for customer complaints and reviews.<br>
+            3 tones: <strong style="color:var(--text)">Apologetic · Professional · Firm</strong><br>
+            Works for Google Reviews, Yelp, DoorDash, email, DMs.<br><br>
+            <strong style="color:var(--text)">Free tier:</strong> 5 replies/month (localStorage)<br>
+            <strong style="color:var(--text)">Pro tier:</strong> $9/month unlimited<br><br>
+            <a href="https://wisethoth7.github.io/replydraft/" target="_blank" style="color:#8B5CF6;text-decoration:none;font-weight:700">→ Open ReplyDraft ↗</a>
+          </div>
+        </div>
+        <div class="dash-card" style="padding:20px">
+          <div class="dash-header" style="margin:-20px -20px 16px;padding:12px 16px"><span class="dash-title">UPGRADE FUNNEL</span></div>
+          <div class="product-row"><div class="prod-dot" style="background:var(--green)"></div><div class="prod-name">Usage gate at 5/month</div><div class="prod-val" style="color:var(--green);font-size:11px">✓ Live</div></div>
+          <div class="product-row"><div class="prod-dot" style="background:var(--green)"></div><div class="prod-name">Soft CTA after 3rd reply</div><div class="prod-val" style="color:var(--green);font-size:11px">✓ Live</div></div>
+          <div class="product-row"><div class="prod-dot" style="background:var(--green)"></div><div class="prod-name">Hard gate modal at limit</div><div class="prod-val" style="color:var(--green);font-size:11px">✓ Live</div></div>
+          <div class="product-row"><div class="prod-dot" style="background:var(--amber)"></div><div class="prod-name">Stripe payment link</div><div class="prod-val" style="color:var(--amber);font-size:11px">Pending</div></div>
+          <div style="padding:12px 16px;font-size:11px;color:var(--text2)">Usage tracked per-browser in localStorage. Upgrade routes to email CTA until Stripe link is wired.</div>
+        </div>
       </div>
     </div>
-    <div class="crypto-grid" id="cryptoGrid">
-      <div class="loading">Loading prices...</div>
-    </div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:700;letter-spacing:.5px;text-transform:uppercase">Notes</div>
-      <textarea id="tradingNotes" placeholder="Your trading notes, setups, watchlist commentary..." style="width:100%;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;resize:vertical;min-height:80px;outline:none;line-height:1.65" oninput="saveTradingNotes()"></textarea>
-    </div>
-  </div>
 
-  <!-- RECENT ACTIVITY -->
-  <div class="panel panel-full">
-    <div class="panel-header">
-      <span class="panel-title">⚡ Recent Activity</span>
+    <!-- ═══ TRADING ═══ -->
+    <div class="panel" id="panel-trading">
+      <div class="stats-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat total"><div class="stat-label">STANCE</div><div class="stat-value" style="font-size:14px;letter-spacing:0;color:var(--red)">PROTECT</div></div>
+        <div class="stat total"><div class="stat-label">WATCHLIST</div><div class="stat-value">23</div><div class="stat-sub">assets</div></div>
+        <div class="stat total"><div class="stat-label">BTC TARGET</div><div class="stat-value" style="font-size:16px;letter-spacing:-.5px">$68K</div><div class="stat-sub">for stance change</div></div>
+        <div class="stat total"><div class="stat-label">POSITIONS</div><div class="stat-value">0</div><div class="stat-sub">none active</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-header"><span class="dash-title">WATCHLIST — ENTRY ZONES</span><span class="dash-badge">Capital Protection Mode</span></div>
+        <table class="watch-table">
+          <thead><tr><th>Asset</th><th>Entry Zone</th><th>Stop Loss</th><th>T1</th><th>T2</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td class="asset">SOL</td><td>$63–65</td><td>$59.50</td><td>$74</td><td>$84</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">ETH</td><td>$1,580–1,620</td><td>$1,480</td><td>$1,850</td><td>$2,050</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">ADA</td><td>$0.155–0.165</td><td>$0.142</td><td>$0.20</td><td>$0.24</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">SUI</td><td>$0.68–0.72</td><td>$0.62</td><td>$0.88</td><td>$1.05</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">LINK</td><td>$7.20–7.60</td><td>$6.60</td><td>$9.50</td><td>$11.50</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">XRP</td><td>$1.08–1.12</td><td>$1.00</td><td>$1.30</td><td>$1.55</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">DOGE</td><td>$0.075–0.080</td><td>$0.068</td><td>$0.095</td><td>$0.11</td><td><span class="zone-badge zone-protect">Watch</span></td></tr>
+            <tr><td class="asset">GOLD</td><td>Dips above $4,200</td><td>—</td><td>$5,400</td><td>$6,300</td><td><span class="zone-badge zone-watch">LT Bull</span></td></tr>
+            <tr><td class="asset">SILVER</td><td>~$71 zone</td><td>—</td><td>—</td><td>—</td><td><span class="zone-badge zone-watch">Iran deal?</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="activity-list" id="activityList">
-      <div class="loading">Loading activity...</div>
-    </div>
-  </div>
 
+  </div>
+</main>
 </div>
 
 <script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const PIN_HASH = '043f0596fb25e694305f5b6f9f9a886928d4e8ec9046f4b9fde1cb607f85e4a7';
 const SUPABASE_URL = 'https://hvyfeebazmiqateniupm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2eWZlZWJhem1pcWF0ZW5pdXBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMTI2MTcsImV4cCI6MjA5NTY4ODYxN30.89qqEshOwp1bU2AQbzSpZ36_TuqP2jVULo_9Ug-S9_c';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const PIN_HASH = '043f0596fb25e694305f5b6f9f9a886928d4e8ec9046f4b9fde1cb607f85e4a7';
-const SESSION_KEY = 'pantheon_auth';
-
-// ── PIN GATE ─────────────────────────────────────────────────────────────
-async function hashPin(pin) {
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+async function checkPin(){
+  const pin = document.getElementById('auth-pin').value;
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
-async function checkPin() {
-  const input = document.getElementById('pinInput').value;
-  const err = document.getElementById('pinError');
-  if (!input) { err.textContent = 'Enter your PIN'; return; }
-  const hash = await hashPin(input);
-  if (hash === PIN_HASH) {
-    sessionStorage.setItem(SESSION_KEY, '1');
-    document.getElementById('pinGate').style.display = 'none';
-    initDashboard();
+  const hash = Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  if(hash === PIN_HASH){
+    sessionStorage.setItem('pantheon_auth','1');
+    document.getElementById('auth').style.display = 'none';
+    loadAll();
+    startClock();
   } else {
-    err.textContent = 'Incorrect PIN';
-    document.getElementById('pinInput').value = '';
-    document.getElementById('pinInput').focus();
-    setTimeout(() => err.textContent = '', 3000);
+    document.getElementById('auth-err').style.display = 'block';
+    document.getElementById('auth-pin').value = '';
+    setTimeout(()=>document.getElementById('auth-err').style.display='none', 3000);
   }
 }
-
-// ── INIT ─────────────────────────────────────────────────────────────────
-function initDashboard() {
-  const d = new Date();
-  document.getElementById('hdrDate').textContent = d.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  loadTradingNotes();
-  loadAll();
-  setInterval(loadAll, 60000);
+// Resume session without re-entering PIN
+if(sessionStorage.getItem('pantheon_auth')){
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.getElementById('auth').style.display='none';
+    loadAll(); startClock();
+  });
 }
 
-async function loadAll() {
-  document.getElementById('lastUpdated').textContent = 'Refreshing...';
-  await Promise.allSettled([
-    loadOrderTaker(),
-    loadEvently(),
-    loadLinguaCloud(),
-    loadDunning(),
-    loadProposalCraft(),
-    loadCrypto(),
-    loadActivity(),
-  ]);
-  document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}`;
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+const PANEL_TITLES = {
+  overview:'Command Center', ordertaker:'OrderTaker', evently:'Evently',
+  dunning:'Dunning Assistant', linguacloud:'LinguaCloud',
+  proposalcraft:'ProposalCraft', replydraft:'ReplyDraft', trading:'Trading Watchlist'
+};
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  const link = [...document.querySelectorAll('.nav-link')].find(n=>n.getAttribute('onclick')?.includes("'"+id+"'"));
+  if(link) link.classList.add('active');
+  document.getElementById('topbar-title').textContent = PANEL_TITLES[id]||id;
+  event?.preventDefault();
 }
 
-// ── ORDERTAKER ────────────────────────────────────────────────────────────
-async function loadOrderTaker() {
-  try {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const [ordersRes, signupsRes] = await Promise.all([
-      sb.from('ot_orders').select('total,created_at,customer_name,order_type').gte('created_at', today.toISOString()),
-      sb.from('ot_signups').select('id', { count: 'exact', head: true }),
+// ── LOAD ALL DATA ─────────────────────────────────────────────────────────────
+async function loadAll(){
+  document.getElementById('last-updated').textContent = 'Loading…';
+  await Promise.all([loadOT(), loadEvently(), loadDunning(), loadLinguaCloud()]);
+  renderOverview();
+  document.getElementById('last-updated').textContent = 'Updated '+new Date().toLocaleTimeString();
+}
+
+// ── ORDERTAKER ────────────────────────────────────────────────────────────────
+let otData = { restaurants:[], signups:[] };
+
+async function loadOT(){
+  try{
+    const [r, s] = await Promise.all([
+      sb.from('ot_restaurants').select('*').order('created_at',{ascending:false}),
+      sb.from('ot_signups').select('*').order('created_at',{ascending:false}).limit(20),
     ]);
-    const orders = ordersRes.data || [];
-    const rev = orders.reduce((s, o) => s + Number(o.total || 0), 0);
-    document.getElementById('ot-orders-today').textContent = orders.length;
-    document.getElementById('ot-revenue-today').textContent = '$' + rev.toFixed(0);
-    document.getElementById('ot-leads').textContent = signupsRes.count ?? '—';
-    if (orders.length) {
-      const last = orders[orders.length - 1];
-      document.getElementById('ot-latest-order').textContent = `Last: ${last.customer_name} · ${last.order_type} · $${Number(last.total).toFixed(2)}`;
-    } else {
-      document.getElementById('ot-latest-order').textContent = 'No orders yet today';
-    }
-  } catch(e) { console.error('OT load:', e); }
+    otData.restaurants = r.data||[];
+    otData.signups = s.data||[];
+
+    const live = otData.restaurants.filter(r=>r.agent_active).length;
+    const mrr = live * 299;
+    const unprov = otData.signups.filter(s=>!s.provisioned).length;
+
+    el('s-ot', otData.restaurants.length);
+    el('s-ot-sub', live+' agents live');
+    el('s-mrr', '$'+mrr.toLocaleString());
+    el('s-mrr-sub', 'from '+live+' active restaurants');
+    el('ot-total', otData.restaurants.length);
+    el('ot-live', live);
+    el('ot-mrr', '$'+mrr.toLocaleString());
+    el('ot-unprov', unprov);
+    el('ot-all-count', otData.restaurants.length+' total');
+
+    // OT table
+    const tbody = document.getElementById('ot-table-body');
+    tbody.innerHTML = otData.restaurants.slice(0,15).map(r=>{
+      const pct = Math.round((r.minutes_used||0)/(r.minutes_included||2000)*100);
+      return `<tr>
+        <td class="asset">${esc(r.name||'—')}</td>
+        <td style="font-size:11px">${esc(r.owner_email||'—')}</td>
+        <td>${r.agent_active?'<span class="up">● Live</span>':'<span class="down">● Off</span>'}</td>
+        <td><div style="font-size:11px">${r.minutes_used||0}/${r.minutes_included||2000}</div><div class="bar-wrap"><div class="bar-fill" style="width:${Math.min(pct,100)}%;background:${pct>=80?'var(--red)':'var(--green)'}"></div></div></td>
+        <td>${r.is_trial?'<span style="color:var(--amber);font-size:11px">Trial</span>':'<span style="color:var(--green);font-size:11px">Paid</span>'}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">No restaurants yet</td></tr>';
+
+    // Mini restaurants
+    document.getElementById('ot-restaurants-mini').innerHTML = otData.restaurants.slice(0,5).map(r=>`
+      <div class="product-row">
+        <div class="prod-dot" style="background:${r.agent_active?'var(--green)':'var(--red)'}"></div>
+        <div class="prod-name">${esc(r.name||'—')}</div>
+        <div class="prod-val" style="color:var(--text2);font-size:11px">${r.minutes_used||0}m</div>
+      </div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text2);font-size:12px">No restaurants yet</div>';
+
+  }catch(e){ console.error('OT load:', e.message); }
 }
 
-// ── EVENTLY ───────────────────────────────────────────────────────────────
-async function loadEvently() {
-  try {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const [eventsRes, rsvpsRes, viewsRes] = await Promise.all([
-      sb.from('events').select('id', { count: 'exact', head: true }),
-      sb.from('event_rsvps').select('id', { count: 'exact', head: true }).gte('created_at', today.toISOString()),
-      sb.from('events').select('view_count'),
+// ── EVENTLY ───────────────────────────────────────────────────────────────────
+let evData = { events:[], profiles:[], rsvps:[] };
+
+async function loadEvently(){
+  try{
+    const [ev, pr, rv] = await Promise.all([
+      sb.from('events').select('id,title,category,organiser,date,created_at').order('created_at',{ascending:false}).limit(50),
+      sb.from('organiser_profiles').select('email,tier,events_posted').order('events_posted',{ascending:false}).limit(20),
+      sb.from('event_rsvps').select('id,event_title,created_at').order('created_at',{ascending:false}).limit(10).catch(()=>({data:[]})),
     ]);
-    document.getElementById('evently-events').textContent = eventsRes.count ?? '—';
-    document.getElementById('evently-rsvps').textContent = rsvpsRes.count ?? '—';
-    const totalViews = (viewsRes.data || []).reduce((s, e) => s + (Number(e.view_count) || 0), 0);
-    document.getElementById('evently-views').textContent = totalViews || '—';
-  } catch(e) { console.error('Evently load:', e); }
+    evData.events = ev.data||[];
+    evData.profiles = pr.data||[];
+    evData.rsvps = rv.data||[];
+
+    const paidProfiles = evData.profiles.filter(p=>p.tier && p.tier!=='free');
+    el('s-ev', evData.events.length);
+    el('s-ev-sub', 'events posted');
+    el('ev-events', evData.events.length);
+    el('ev-orgs', evData.profiles.length);
+    el('ev-paid', paidProfiles.length);
+    el('ev-rsvps', evData.rsvps.length);
+
+    // Tier breakdown
+    const tiers = {free:0,boost:0,boost_plus:0,pro:0,business:0};
+    evData.profiles.forEach(p=>{ const t=p.tier||'free'; if(tiers[t]!==undefined) tiers[t]++; });
+    document.getElementById('ev-tiers-content').innerHTML = Object.entries(tiers).map(([tier,count])=>`
+      <div class="product-row">
+        <div class="prod-dot" style="background:${tier==='free'?'var(--text2)':tier==='business'?'var(--ev)':'var(--amber)'}"></div>
+        <div class="prod-name" style="text-transform:capitalize">${tier.replace('_',' ')}</div>
+        <div class="prod-val" style="color:var(--text2)">${count}</div>
+      </div>`).join('');
+
+    // Recent events
+    document.getElementById('ev-recent-content').innerHTML = evData.events.slice(0,6).map(e=>`
+      <div class="activity-item">
+        <div class="activity-dot" style="background:var(--ev)"></div>
+        <div class="activity-text"><strong>${esc(e.title||'')}</strong><br>${esc(e.category||'')} · ${esc(e.organiser||'')}</div>
+        <div class="activity-time">${e.created_at?timeAgo(e.created_at):''}</div>
+      </div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text2);font-size:12px">No events yet</div>';
+
+  }catch(e){ console.error('Evently load:', e.message); }
 }
 
-// ── LINGUACLOUD ───────────────────────────────────────────────────────────
-async function loadLinguaCloud() {
-  try {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const [totalRes, todayRes] = await Promise.all([
-      sb.from('linguacloud_signups').select('id', { count: 'exact', head: true }),
-      sb.from('linguacloud_signups').select('id', { count: 'exact', head: true }).gte('created_at', today.toISOString()),
-    ]);
-    document.getElementById('lc-signups').textContent = totalRes.count ?? '—';
-    document.getElementById('lc-today').textContent = todayRes.count ?? '—';
-  } catch(e) { console.error('LC load:', e); }
-}
-
-// ── DUNNING ───────────────────────────────────────────────────────────────
-async function loadDunning() {
-  try {
-    const [tenantsRes, invoicesRes, overdueRes] = await Promise.all([
-      sb.from('tenants').select('id', { count: 'exact', head: true }),
-      sb.from('dunning_invoices').select('id', { count: 'exact', head: true }),
-      sb.from('dunning_invoices').select('id', { count: 'exact', head: true }).eq('status', 'overdue'),
-    ]);
-    document.getElementById('dun-tenants').textContent = tenantsRes.count ?? '—';
-    document.getElementById('dun-invoices').textContent = invoicesRes.count ?? '—';
-    document.getElementById('dun-overdue').textContent = overdueRes.count ?? '—';
-  } catch(e) { console.error('Dunning load:', e); }
-}
-
-// ── PROPOSALCRAFT ─────────────────────────────────────────────────────────
-async function loadProposalCraft() {
-  try {
-    const [propRes, buyRes] = await Promise.all([
-      sb.from('pc_proposals').select('id', { count: 'exact', head: true }),
-      sb.from('proposalcraft_buyers').select('id', { count: 'exact', head: true }),
-    ]);
-    document.getElementById('pc-proposals').textContent = propRes.count ?? '—';
-    document.getElementById('pc-buyers').textContent = buyRes.count ?? '—';
-  } catch(e) { console.error('PC load:', e); }
-}
-
-// ── REPLYDRAFT (localStorage read from this tab) ──────────────────────────
-(function() {
-  const d = new Date();
-  const key = `rd_usage_${d.getFullYear()}_${d.getMonth()}`;
-  const val = parseInt(localStorage.getItem(key) || '0', 10);
-  document.getElementById('rd-uses').textContent = val;
-})();
-
-// ── TRADING WATCHLIST ────────────────────────────────────────────────────
-const COINS = [
-  { id:'bitcoin',    name:'Bitcoin',   sym:'BTC' },
-  { id:'ethereum',   name:'Ethereum',  sym:'ETH' },
-  { id:'solana',     name:'Solana',    sym:'SOL' },
-  { id:'binancecoin',name:'BNB',       sym:'BNB' },
-  { id:'ripple',     name:'XRP',       sym:'XRP' },
-  { id:'cardano',    name:'Cardano',   sym:'ADA' },
-];
-
-async function loadCrypto() {
-  const grid = document.getElementById('cryptoGrid');
-  try {
-    const ids = COINS.map(c => c.id).join(',');
-    const r = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
-    const data = await r.json();
-    grid.innerHTML = COINS.map(coin => {
-      const d = data[coin.id];
-      if (!d) return '';
-      const price = d.usd;
-      const chg = d.usd_24h_change;
-      const chgClass = chg >= 0 ? 'up' : 'down';
-      const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
-      const priceStr = price >= 1000 ? '$' + price.toLocaleString('en-US', { maximumFractionDigits: 0 })
-        : price >= 1 ? '$' + price.toFixed(2)
-        : '$' + price.toFixed(4);
-      return `<div class="crypto-card">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
-          <div class="crypto-name">${coin.sym}</div>
-          <div class="crypto-change ${chgClass}">${chgStr}</div>
-        </div>
-        <div class="crypto-price">${priceStr}</div>
-        <div class="crypto-symbol" style="margin-top:3px">${coin.name}</div>
-      </div>`;
-    }).join('');
-    document.getElementById('crypto-updated').textContent = `as of ${new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}`;
-  } catch(e) {
-    grid.innerHTML = '<div style="color:var(--text2);font-size:12px">Could not load prices — check connection</div>';
-  }
-}
-
-// ── ACTIVITY FEED ─────────────────────────────────────────────────────────
-async function loadActivity() {
-  const list = document.getElementById('activityList');
-  try {
-    const [orders, rsvps, lcSignups] = await Promise.all([
-      sb.from('ot_orders').select('customer_name,total,created_at,order_type').order('created_at',{ascending:false}).limit(3),
-      sb.from('event_rsvps').select('attendee_name,created_at').order('created_at',{ascending:false}).limit(2),
-      sb.from('linguacloud_signups').select('email,created_at').order('created_at',{ascending:false}).limit(2),
+// ── DUNNING ───────────────────────────────────────────────────────────────────
+async function loadDunning(){
+  try{
+    const [cust, inv, pending] = await Promise.all([
+      sb.from('dunning_customers').select('id').catch(()=>({data:[]})),
+      sb.from('dunning_invoices').select('*').eq('status','overdue').catch(()=>({data:[]})),
+      sb.from('dunning_events').select('id').eq('status','pending').catch(()=>({data:[]})),
     ]);
 
-    const items = [
-      ...(orders.data || []).map(o => ({ icon:'🍕', text:`${o.customer_name} placed ${o.order_type} order · $${Number(o.total).toFixed(2)}`, ts: o.created_at })),
-      ...(rsvps.data || []).map(r => ({ icon:'📅', text:`${r.attendee_name || 'Someone'} RSVP'd to an event`, ts: r.created_at })),
-      ...(lcSignups.data || []).map(s => ({ icon:'🌐', text:`${s.email} joined LinguaCloud waitlist`, ts: s.created_at })),
-    ].sort((a,b) => new Date(b.ts) - new Date(a.ts)).slice(0, 8);
+    const paidInv = await sb.from('dunning_invoices').select('amount').eq('status','paid').catch(()=>({data:[]}));
+    const recovered = (paidInv.data||[]).reduce((s,i)=>s+(i.amount||0),0);
 
-    if (!items.length) {
-      list.innerHTML = '<div class="loading">No recent activity</div>';
-      return;
-    }
+    el('s-da', (cust.data||[]).length);
+    el('s-da-sub', 'waitlist');
+    el('da-customers', (cust.data||[]).length);
+    el('da-overdue', (inv.data||[]).length);
+    el('da-recovered', '$'+(recovered/100).toLocaleString());
+    el('da-pending', (pending.data||[]).length);
 
-    list.innerHTML = items.map(item => {
-      const diff = Math.floor((Date.now() - new Date(item.ts)) / 60000);
-      const timeStr = diff < 1 ? 'Just now' : diff < 60 ? `${diff}m ago` : diff < 1440 ? `${Math.floor(diff/60)}h ago` : `${Math.floor(diff/1440)}d ago`;
-      return `<div class="activity-row">
-        <span class="activity-icon">${item.icon}</span>
-        <span class="activity-text">${item.text}</span>
-        <span class="activity-time">${timeStr}</span>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    list.innerHTML = '<div class="loading">Activity unavailable</div>';
-  }
+    const now = new Date();
+    const tbody = document.getElementById('da-table-body');
+    tbody.innerHTML = (inv.data||[]).slice(0,10).map(i=>{
+      const days = i.due_date ? Math.floor((now-new Date(i.due_date))/86400000) : 0;
+      return `<tr>
+        <td class="asset">${esc(i.customer_id?.slice(0,8)||'—')}</td>
+        <td>$${((i.amount||0)/100).toFixed(2)}</td>
+        <td class="${days>30?'down':days>14?'flat':'up'}">${days}d</td>
+        <td>—</td>
+        <td><span class="zone-badge zone-protect">Overdue</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text2)">No overdue invoices</td></tr>';
+
+  }catch(e){ console.error('Dunning load:', e.message); }
 }
 
-// ── TRADING NOTES ─────────────────────────────────────────────────────────
-function saveTradingNotes() {
-  localStorage.setItem('pantheon_trading_notes', document.getElementById('tradingNotes').value);
+// ── LINGUACLOUD ───────────────────────────────────────────────────────────────
+async function loadLinguaCloud(){
+  try{
+    const { data } = await sb.from('linguacloud_signups').select('email,source,created_at').order('created_at',{ascending:false}).limit(20).catch(()=>({data:[]}));
+    const list = data||[];
+    el('s-lc', list.length);
+    el('lc-waitlist', list.length);
+    document.getElementById('lc-signups-content').innerHTML = list.length
+      ? list.map(s=>`<div class="activity-item"><div class="activity-dot" style="background:var(--lc)"></div><div class="activity-text"><strong>${esc(s.email)}</strong></div><div class="activity-time">${s.created_at?timeAgo(s.created_at):''}</div></div>`).join('')
+      : '<div style="padding:20px;text-align:center;color:var(--text2);font-size:12px">No signups yet — deploy linguacloud.html first</div>';
+  }catch(e){ console.error('LC load:', e.message); }
 }
 
-function loadTradingNotes() {
-  const saved = localStorage.getItem('pantheon_trading_notes');
-  if (saved) document.getElementById('tradingNotes').value = saved;
+// ── OVERVIEW RENDER ───────────────────────────────────────────────────────────
+function renderOverview(){
+  // Pipeline
+  const unprov = otData.signups.filter(s=>!s.provisioned);
+  el('pipeline-badge', unprov.length+' pending');
+  document.getElementById('pipeline-content').innerHTML = unprov.length
+    ? unprov.slice(0,5).map(s=>`<div class="product-row">
+        <div class="prod-dot" style="background:${s.provisioned?'var(--green)':'var(--amber)'}"></div>
+        <div><div class="prod-name">${esc(s.contact_name||s.restaurant_name||'—')}</div><div class="prod-sub">${esc(s.email||'')}</div></div>
+        <div class="prod-val" style="color:var(--amber);font-size:11px">${s.provisioned?'✓':'Pending'}</div>
+      </div>`).join('')
+    : '<div style="padding:16px;text-align:center;color:var(--green);font-size:12px">✓ All signups provisioned</div>';
+
+  // Activity feed — combine recent from all products
+  const activities = [];
+  otData.restaurants.slice(0,3).forEach(r=>activities.push({time:r.created_at,color:'var(--ot)',text:`<strong>${esc(r.name||'')}</strong> signed up for OrderTaker`}));
+  evData.events.slice(0,3).forEach(e=>activities.push({time:e.created_at,color:'var(--ev)',text:`<strong>${esc(e.title||'')}</strong> posted on Evently`}));
+  activities.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  document.getElementById('activity-content').innerHTML = activities.slice(0,8).map(a=>`
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div class="activity-text">${a.text}</div>
+      <div class="activity-time">${a.time?timeAgo(a.time):''}</div>
+    </div>`).join('') || '<div style="padding:16px;text-align:center;color:var(--text2);font-size:12px">No recent activity</div>';
 }
 
-// ── AUTO-CHECK SESSION ─────────────────────────────────────────────────────
-if (sessionStorage.getItem(SESSION_KEY)) {
-  document.getElementById('pinGate').style.display = 'none';
-  initDashboard();
-} else {
-  setTimeout(() => document.getElementById('pinInput').focus(), 100);
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function el(id, val){ const e=document.getElementById(id); if(e) e.textContent=val; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function timeAgo(dt){
+  const d=(Date.now()-new Date(dt))/1000;
+  if(d<60) return 'just now';
+  if(d<3600) return Math.floor(d/60)+'m';
+  if(d<86400) return Math.floor(d/3600)+'h';
+  return Math.floor(d/86400)+'d';
+}
+function startClock(){
+  const update=()=>{ document.getElementById('topbar-time').textContent=new Date().toLocaleTimeString(); };
+  update(); setInterval(update, 1000);
 }
 </script>
 </body>
